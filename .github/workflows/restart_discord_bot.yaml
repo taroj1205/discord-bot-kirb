@@ -1,0 +1,16 @@
+name: Restart Discord Bot
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    steps:
+    - name: Kirb Discord Bot
+      run: |
+        Invoke-WebRequest -Method Post -Uri ${{ secrets.DISCORD_WEBHOOK_URL }}/restart
+      shell: powershell
