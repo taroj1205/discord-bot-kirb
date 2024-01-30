@@ -1,6 +1,8 @@
 import { ActionRowBuilder, ButtonBuilder, ButtonStyle, CommandInteraction, EmbedBuilder, MessageComponentInteraction, SlashCommandBuilder } from 'discord.js';
 import axios, { AxiosResponse } from 'axios';
 
+const githubToken = process.env.GITHUB_TOKEN;
+
 export const data = new SlashCommandBuilder()
   .setName('github')
   .setDescription('Get GitHub stats for a user')
@@ -63,7 +65,11 @@ export async function execute(interaction: CommandInteraction) {
 }
 
 export async function getUserProfile(username: string) {
-  const response: AxiosResponse<GitHubUser> = await axios.get(`https://api.github.com/users/${username}`);
+  const response: AxiosResponse<GitHubUser> = await axios.get(`https://api.github.com/users/${username}`, {
+    headers: {
+      Authorization: `token ${githubToken}`
+    }
+  });
   const embed = new EmbedBuilder()
     .setTitle(`${username}'s GitHub Profile`)
     .addFields(
@@ -77,7 +83,11 @@ export async function getUserProfile(username: string) {
 }
 
 export async function getRepos(username: string): Promise<EmbedBuilder> {
-  const response: AxiosResponse = await axios.get(`https://api.github.com/users/${username}/repos`);
+  const response: AxiosResponse = await axios.get(`https://api.github.com/users/${username}/repos`, {
+    headers: {
+      Authorization: `token ${githubToken}`
+    }
+  });
 
   const embed = new EmbedBuilder()
     .setTitle(`${username}'s GitHub Repositories`)
