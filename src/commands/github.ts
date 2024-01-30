@@ -39,6 +39,7 @@ interface Repo {
 export async function execute(interaction: CommandInteraction) {
   if (!interaction.isChatInputCommand()) return;
   try {
+    await interaction.deferReply();
     const username = interaction.options.getString('username');
     if (!username) throw new Error('Username is required');
     if (interaction.options.getSubcommand() === 'profile') {
@@ -55,7 +56,7 @@ export async function execute(interaction: CommandInteraction) {
       //   .setCustomId('getprofile')
       //   .setLabel('Get Profile')
       //   .setStyle(ButtonStyle.Success);
-      // const row = new ActionRowBuilder<ButtonBuilder>().addComponents(button);
+      // const row = new ActionRowBuilder<ButtonBuilder>().addComponents(button);Q
       return await interaction.reply({ embeds: [reposEmbed] });
     }
   } catch (error) {
