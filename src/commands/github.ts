@@ -35,26 +35,26 @@ interface Repo {
 }
 
 export async function execute(interaction: CommandInteraction) {
-  if (!interaction.isCommand() || !interaction.isChatInputCommand()) return;
+  if (!interaction.isChatInputCommand()) return;
   try {
     const username = interaction.options.getString('username');
     if (!username) throw new Error('Username is required');
     if (interaction.options.getSubcommand() === 'profile') {
       const profileEmbed = await getUserProfile(username);
-      const button = new ButtonBuilder()
-        .setCustomId('getrepos')
-        .setLabel('Get Repositories')
-        .setStyle(ButtonStyle.Primary);
-      const row = new ActionRowBuilder<ButtonBuilder>().addComponents(button);
-      return await interaction.reply({ embeds: [profileEmbed], components: [row] });
+      // const button = new ButtonBuilder()
+      //   .setCustomId('getrepos')
+      //   .setLabel('Get Repositories')
+      //   .setStyle(ButtonStyle.Primary);
+      // const row = new ActionRowBuilder<ButtonBuilder>().addComponents(button);
+      return await interaction.reply({ embeds: [profileEmbed] });
     } else if (interaction.options.getSubcommand() === 'repos') {
       const reposEmbed = await getRepos(username);
-      const button = new ButtonBuilder()
-        .setCustomId('getprofile')
-        .setLabel('Get Profile')
-        .setStyle(ButtonStyle.Success);
-      const row = new ActionRowBuilder<ButtonBuilder>().addComponents(button);
-      return await interaction.reply({ embeds: [reposEmbed], components: [row] });
+      // const button = new ButtonBuilder()
+      //   .setCustomId('getprofile')
+      //   .setLabel('Get Profile')
+      //   .setStyle(ButtonStyle.Success);
+      // const row = new ActionRowBuilder<ButtonBuilder>().addComponents(button);
+      return await interaction.reply({ embeds: [reposEmbed] });
     }
   } catch (error) {
     console.log((error as Error).message);
@@ -70,7 +70,7 @@ export async function getUserProfile(username: string) {
       { name: 'Public Repositories', value: response.data.public_repos.toString(), inline: true },
       { name: 'Followers', value: response.data.followers.toString(), inline: true },
       { name: 'Following', value: response.data.following.toString(), inline: true },
-      { name: 'Account Created At', value: new Date(response.data.created_at).toLocaleDateString(), inline: true }
+      { name: 'Account Created At', value: `<t:${Math.floor(new Date(response.data.created_at).getTime() / 1000)}:D>`, inline: true }
     )
     .setColor('#0099ff');
   return embed;
