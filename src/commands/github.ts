@@ -39,7 +39,6 @@ interface Repo {
 export async function execute(interaction: CommandInteraction) {
   if (!interaction.isChatInputCommand()) return;
   try {
-    await interaction.deferReply();
     const username = interaction.options.getString('username');
     if (!username) throw new Error('Username is required');
     if (interaction.options.getSubcommand() === 'profile') {
