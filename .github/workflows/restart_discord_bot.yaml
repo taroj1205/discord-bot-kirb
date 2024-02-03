@@ -12,5 +12,5 @@ jobs:
     steps:
     - name: Kirb Discord Bot
       run: |
-        Invoke-WebRequest -Method Post -Uri ${{ secrets.DISCORD_WEBHOOK_URL }}/restart
+        Invoke-RestMethod -Uri ${{ secrets.DISCORD_WEBHOOK_URL }}/restart
       shell: powershell
