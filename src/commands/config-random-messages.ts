@@ -54,7 +54,7 @@ export async function execute(interaction: CommandInteraction) {
 
       await save(interaction.guildId!, messageList.join(','), chance);
 
-      await interaction.reply(`Set random messages to: ${messageList.join(', ')} with chance: ${chance * 100}%`);
+      return await interaction.reply(`Set random messages to: ${messageList.join(', ')} with chance: ${chance * 100}%`);
     } else if (interaction.options.getSubcommand() === 'show') {
       const { messages, chance } = await get(interaction.guildId!);
 
