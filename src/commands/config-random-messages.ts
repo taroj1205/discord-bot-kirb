@@ -64,6 +64,7 @@ export async function execute(interaction: CommandInteraction) {
         .setColor('#0099ff');
 
       await interaction.reply({ embeds: [embed] });
+      return interaction.deferReply();
     }
   } catch (error) {
     console.log((error as Error).message);
