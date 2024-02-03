@@ -1,5 +1,5 @@
-import { CommandInteraction, SlashCommandBuilder, Permissions, GuildMember, GuildChannel, PermissionsBitField } from 'discord.js';
-import { save } from '../sql';
+import { CommandInteraction, SlashCommandBuilder, Permissions, GuildMember, GuildChannel, PermissionsBitField, EmbedBuilder } from 'discord.js';
+import { get, save } from '../sql';
 
 export const data = new SlashCommandBuilder()
   .setName('config')
@@ -20,6 +20,11 @@ export const data = new SlashCommandBuilder()
           .setDescription('The chance of sending a random message example: 0.01')
           .setRequired(false)
       )
+  )
+  .addSubcommand(subcommand =>
+    subcommand
+      .setName('show')
+      .setDescription('Shows current configurations')
   );
 
 export async function execute(interaction: CommandInteraction) {
@@ -50,6 +55,15 @@ export async function execute(interaction: CommandInteraction) {
       await save(interaction.guildId!, messageList.join(','), chance);
 
       await interaction.reply(`Set random messages to: ${messageList.join(', ')}`);
+    } else if (interaction.options.getSubcommand() === 'show') {
+      const { messages, chance } = await get(interaction.guildId!);
+
+      const embed = new EmbedBuilder()
+        .setTitle('Random Messages Configuration')
+        .addFields({name: 'Messages', value: messages.join(', '), inline: true}, {name: 'Chance', value: chance.toString(), inline: true})
+        .setColor('#0099ff');
+
+      await interaction.reply({ embeds: [embed] });
     }
   } catch (error) {
     console.log((error as Error).message);
