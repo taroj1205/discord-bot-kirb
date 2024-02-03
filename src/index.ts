@@ -2,6 +2,7 @@ import { Client } from "discord.js";
 import { config } from "./config";
 import { commands } from "./commands";
 import { deployCommands } from "./deploy-commands";
+import { get } from "./sql";
 
 const client = new Client({
   intents: ["Guilds", "GuildMessages", "DirectMessages"],
@@ -31,9 +32,13 @@ client.on("messageCreate", async (message) => {
   // Ignore messages from bots
   if (message.author.bot) return;
 
+  const { messages: words, chance } = await get(message.guild?.id!) || { messages: ["L"], chance: 0.01 };
+
   // 1% chance of being triggered
-  if (Math.random() < 0.01) {
-    await message.reply("L");
+  if (Math.random() < chance) {
+    // Pick random word from the list
+    const word = words[Math.floor(Math.random() * words.length)];
+    await message.reply(word);
   }
 })
 

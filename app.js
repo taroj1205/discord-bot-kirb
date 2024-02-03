@@ -75,8 +75,13 @@ async function restartBot() {
 		const botDirPath = path.join(__dirname, "../discord-bot-kirb");
 
 		// Create a timestamp for the log file
-		const timestamp = new Date().toISOString().replace(/:/g, '-').replace('T', '-').substring(0, 19);
-		const logFilePath = path.join(__dirname, `./logs/${timestamp}.log`);
+		const now = new Date();
+		const date = now.toISOString().split("T")[0];
+		const hours = now.getHours().toString().padStart(2, '0');
+		const minutes = now.getMinutes().toString().padStart(2, '0');
+		const seconds = now.getSeconds().toString().padStart(2, '0');
+		const timestamp = `${hours}_${minutes}_${seconds}`;
+		const logFilePath = path.join(__dirname, `./logs/${date}/${timestamp}.log`);
 
 		// Create log folder if not exists
 		if (!fs.existsSync(path.dirname(logFilePath))) {
@@ -93,10 +98,16 @@ async function restartBot() {
 		// Check if the directory exists
 		if (!fs.existsSync(botDirPath)) {
 			// Clone the repository if it doesn't exist
-			botProcess = exec(`git clone https://github.com/taroj1205/discord-bot-kirb.git && cd ${botDirPath} && pnpm i && pnpm build && pnpm run start > ${logFilePath} 2>&1`, { cwd: path.dirname(botDirPath) });
+			botProcess = exec(
+				`git clone https://github.com/taroj1205/discord-bot-kirb.git && cd ${botDirPath} && pnpm i && pnpm build && pnpm run start > ${logFilePath} 2>&1`,
+				{ cwd: path.dirname(botDirPath) }
+			);
 		} else {
 			// Pull the latest changes if the repository already exists
-			botProcess = exec(`git pull && cd ${botDirPath} && pnpm i && pnpm build && pnpm run start > ${logFilePath} 2>&1`, { cwd: botDirPath });
+			botProcess = exec(
+				`git pull && cd ${botDirPath} && pnpm i && pnpm build && pnpm run start > ${logFilePath} 2>&1`,
+				{ cwd: botDirPath }
+			);
 		}
 
 		console.log("Bot restarted successfully.");
