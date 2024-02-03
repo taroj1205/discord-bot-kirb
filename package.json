@@ -6,15 +6,22 @@
   "scripts": {
     "dev": "tsx watch src/index.ts",
     "start": "node dist/index.js",
+    "script": "node app.js",
     "build": "tsup src/index.ts --minify"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@ngrok/ngrok": "^1.0.0",
+    "@octokit/rest": "^20.0.2",
     "axios": "^1.6.7",
+    "child_process": "^1.0.2",
     "discord.js": "^14.14.1",
-    "dotenv": "^16.4.1"
+    "dotenv": "^16.4.1",
+    "fs": "0.0.1-security",
+    "path": "^0.12.7",
+    "sodium-native": "^4.0.6"
   },
   "devDependencies": {
     "tsup": "^8.0.1",
