@@ -1,5 +1,5 @@
 import { CommandInteraction, SlashCommandBuilder, Permissions, GuildMember, GuildChannel, PermissionsBitField, EmbedBuilder } from 'discord.js';
-import { get, save } from '../sql';
+import { get, save } from '../../sql';
 
 export const data = new SlashCommandBuilder()
   .setName('config')
