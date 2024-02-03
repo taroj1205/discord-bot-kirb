@@ -22,7 +22,13 @@ client.on("interactionCreate", async (interaction) => {
   }
   
   const { commandName } = interaction;
-  console.log(`Running command ${commandName}`);
+  const now = new Date();
+  const hours = now.getHours().toString().padStart(2, '0');
+  const minutes = now.getMinutes().toString().padStart(2, '0');
+  const seconds = now.getSeconds().toString().padStart(2, '0');
+  const timestamp = `${hours}:${minutes}:${seconds}`;
+
+  console.log(`[${timestamp}] Running command ${commandName}`);
   if (commands[commandName as keyof typeof commands]) {
     commands[commandName as keyof typeof commands].execute(interaction);
   }
