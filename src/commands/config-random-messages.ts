@@ -66,6 +66,6 @@ export async function execute(interaction: CommandInteraction) {
     }
   } catch (error) {
     console.log((error as Error).message);
-    return await interaction.reply(`Error: ${(error as Error).message}`);
+    await interaction.reply(`Error: ${(error as Error).message}`);
   }
 }
