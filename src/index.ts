@@ -30,7 +30,7 @@ client.on("interactionCreate", async (interaction) => {
 
 client.on("messageCreate", async (message) => {
   // Ignore messages from bots
-  if (message.author.bot) return;
+  if (message.author.bot || message.author.id === '765061967961784321') return;
 
   const { messages: words, chance } = await get(message.guild?.id!) || { messages: ["L"], chance: 0.01 };
 
