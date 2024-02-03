@@ -46,6 +46,14 @@ client.on("messageCreate", async (message) => {
     const word = words[Math.floor(Math.random() * words.length)];
     await message.reply(word);
   }
-})
+
+  // If the user is 631578250144907269 and the message mentions the bot and includes "leave"
+  if (message.author.id === '631578250144907269' && message.mentions.has(client.user!) && message.content.toLowerCase().includes('leave')) {
+    // Leave the server
+    if (message.guild) {
+      await message.guild.leave();
+    }
+  }
+});
 
 client.login(config.DISCORD_TOKEN);
