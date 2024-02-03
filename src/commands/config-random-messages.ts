@@ -33,10 +33,10 @@ export async function execute(interaction: CommandInteraction) {
 
     // Check if the user has admin permissions
     if (!(interaction.member instanceof GuildMember) || !(interaction.channel instanceof GuildChannel) || !interaction.member.permissionsIn(interaction.channel).has(PermissionsBitField.Flags.Administrator)) {
-      await interaction.reply({content: 'You are not permitted to use this command.', ephemeral: true});
+      await interaction.reply({ content: 'You are not permitted to use this command.', ephemeral: true });
       return;
     }
-    
+
     if (interaction.options.getSubcommand() === 'random-messages') {
       const messages = interaction.options.getString('messages');
       if (!messages) throw new Error('No messages provided');
@@ -60,7 +60,7 @@ export async function execute(interaction: CommandInteraction) {
 
       const embed = new EmbedBuilder()
         .setTitle('Random Messages Configuration')
-        .addFields({name: 'Messages', value: messages.join(', '), inline: true}, {name: 'Chance', value: chance.toString(), inline: true})
+        .addFields({ name: 'Messages', value: messages.join(', '), inline: true }, { name: 'Chance', value: `${(chance * 100).toString()}%`, inline: true })
         .setColor('#0099ff');
 
       await interaction.reply({ embeds: [embed] });
