@@ -34,7 +34,6 @@ export async function execute(interaction: CommandInteraction) {
     // Check if the user has admin permissions
     if (!(interaction.member instanceof GuildMember) || !(interaction.channel instanceof GuildChannel) || !interaction.member.permissionsIn(interaction.channel).has(PermissionsBitField.Flags.Administrator)) {
       await interaction.reply({ content: 'You are not permitted to use this command.', ephemeral: true });
-      return;
     }
 
     if (interaction.options.getSubcommand() === 'random-messages') {
@@ -54,7 +53,7 @@ export async function execute(interaction: CommandInteraction) {
 
       await save(interaction.guildId!, messageList.join(','), chance);
 
-      return await interaction.reply(`Set random messages to: ${messageList.join(', ')} with chance: ${chance * 100}%`);
+      await interaction.reply(`Set random messages to: ${messageList.join(', ')} with chance: ${chance * 100}%`);
     } else if (interaction.options.getSubcommand() === 'show') {
       const { messages, chance } = await get(interaction.guildId!);
 
@@ -64,10 +63,9 @@ export async function execute(interaction: CommandInteraction) {
         .setColor('#0099ff');
 
       await interaction.reply({ embeds: [embed] });
-      return interaction.deferReply();
     }
   } catch (error) {
     console.log((error as Error).message);
-    await interaction.reply(`Error: ${(error as Error).message}`);
+    return await interaction.reply(`Error: ${(error as Error).message}`);
   }
 }
