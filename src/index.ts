@@ -27,4 +27,14 @@ client.on("interactionCreate", async (interaction) => {
   }
 });
 
+client.on("messageCreate", async (message) => {
+  // Ignore messages from bots
+  if (message.author.bot) return;
+
+  // 1% chance of being triggered
+  if (Math.random() < 0.01) {
+    await message.reply("L");
+  }
+})
+
 client.login(config.DISCORD_TOKEN);
