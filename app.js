@@ -42,6 +42,8 @@ const authToken = String(process.env.NGROK_AUTHTOKEN);
 		key_id: key_id,
 	});
 
+	restartBot()
+
 	const server = http.createServer(async (req, res) => {
 		if (req.url === "/restart" && req.method === "GET") {
 			try {
