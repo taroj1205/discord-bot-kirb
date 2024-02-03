@@ -1,11 +1,13 @@
 const ngrok = require("@ngrok/ngrok");
-const { spawn } = require("child_process");
 const path = require("path");
 const fs = require("fs");
 const { Octokit } = require("@octokit/rest");
 const sodium = require("sodium-native");
 require("dotenv").config();
 const http = require("http");
+const { exec } = require("child_process");
+
+
 const octokit = new Octokit({ auth: process.env.GITHUB_TOKEN });
 
 const authToken = String(process.env.NGROK_AUTHTOKEN);
@@ -65,29 +67,36 @@ const authToken = String(process.env.NGROK_AUTHTOKEN);
 	});
 })();
 
+let botProcess = null;
+
 async function restartBot() {
 	try {
 		console.log("Restarting bot...");
 		const botDirPath = path.join(__dirname, "../discord-bot-kirb");
 
+		// Create a timestamp for the log file
+		const timestamp = new Date().toISOString().replace(/:/g, '-').replace('T', '-').substring(0, 19);
+		const logFilePath = path.join(__dirname, `./logs/${timestamp}.log`);
+
+		// Create log folder if not exists
+		if (!fs.existsSync(path.dirname(logFilePath))) {
+			fs.mkdirSync(path.dirname(logFilePath), { recursive: true });
+		}
+
+		// Stop the current bot if it's running
+		if (botProcess) {
+			botProcess.kill();
+			botProcess = null;
+			console.log("Bot process stopped.");
+		}
+
 		// Check if the directory exists
 		if (!fs.existsSync(botDirPath)) {
 			// Clone the repository if it doesn't exist
-			spawn(
-				"cmd.exe",
-				["/c", `git clone https://github.com/taroj1205/discord-bot-kirb.git && cd ${botDirPath} && pnpm i && pnpm run dev`],
-				{ cwd: path.dirname(botDirPath) }
-			);
+			botProcess = exec(`git clone https://github.com/taroj1205/discord-bot-kirb.git && cd ${botDirPath} && pnpm i && pnpm build && pnpm run start > ${logFilePath} 2>&1`, { cwd: path.dirname(botDirPath) });
 		} else {
 			// Pull the latest changes if the repository already exists
-			spawn(
-				"cmd.exe",
-				[
-					"/c",
-					`git pull && cd ${botDirPath} && pnpm i && pnpm run dev`,
-				],
-				{ cwd: botDirPath }
-			);
+			botProcess = exec(`git pull && cd ${botDirPath} && pnpm i && pnpm build && pnpm run start > ${logFilePath} 2>&1`, { cwd: botDirPath });
 		}
 
 		console.log("Bot restarted successfully.");
