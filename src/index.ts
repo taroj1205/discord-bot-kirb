@@ -22,7 +22,13 @@ client.on("interactionCreate", async (interaction) => {
   }
   
   const { commandName } = interaction;
-  console.log(`Running command ${commandName}`);
+  const now = new Date();
+  const hours = now.getHours().toString().padStart(2, '0');
+  const minutes = now.getMinutes().toString().padStart(2, '0');
+  const seconds = now.getSeconds().toString().padStart(2, '0');
+  const timestamp = `${hours}:${minutes}:${seconds}`;
+
+  console.log(`[${timestamp}] Running command ${commandName}`);
   if (commands[commandName as keyof typeof commands]) {
     commands[commandName as keyof typeof commands].execute(interaction);
   }
@@ -32,13 +38,13 @@ client.on("messageCreate", async (message) => {
   // Ignore messages from bots and kirb
   if (message.author.bot || message.author.id === '765061967961784321') return;
 
-  const { messages: words, chance } = await get(message.guild?.id!) || { messages: ["L"], chance: 0.01 };
+  const { messages: words, chance, channels } = await get(message.guild?.id!) || { messages: "L", chance: 0.01, channels: null };
 
   if (Math.random() < chance) {
     // Pick random word from the list
     const word = words[Math.floor(Math.random() * words.length)];
     await message.channel.send(word);
   }
-})
+});
 
 client.login(config.DISCORD_TOKEN);

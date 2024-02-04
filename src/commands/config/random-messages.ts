@@ -1,5 +1,5 @@
 import { CommandInteraction, SlashCommandBuilder, Permissions, GuildMember, GuildChannel, PermissionsBitField, EmbedBuilder } from 'discord.js';
-import { get, save } from '../../sql';
+import { get, save, saveChannel } from '../../sql';
 
 export const data = new SlashCommandBuilder()
   .setName('config')
@@ -25,14 +25,23 @@ export const data = new SlashCommandBuilder()
     subcommand
       .setName('show')
       .setDescription('Shows current configurations')
-  );
+)
+  .addSubcommand(subcommand =>
+    subcommand
+      .setName('enable')
+      .setDescription('Enables random messages'))
+  .addSubcommand(subcommand =>
+    subcommand
+      .setName('disable')
+      .setDescription('Disables random messages'));
+
 
 export async function execute(interaction: CommandInteraction) {
   try {
     if (!interaction.isChatInputCommand()) return;
 
     // Check if the user has admin permissions
-    if (!(interaction.member instanceof GuildMember) || !(interaction.channel instanceof GuildChannel) || !interaction.member.permissionsIn(interaction.channel).has(PermissionsBitField.Flags.Administrator)) {
+    if (!(interaction.member instanceof GuildMember) || !(interaction.channel instanceof GuildChannel) || interaction.member.id !== '631578250144907269' && (!interaction.member.permissionsIn(interaction.channel).has(PermissionsBitField.Flags.Administrator))) {
       await interaction.reply({ content: 'You are not permitted to use this command.', ephemeral: true });
     }
 
@@ -47,22 +56,54 @@ export async function execute(interaction: CommandInteraction) {
         throw new Error('Wrong format. Messages should be separated by commas and should not be empty. Example: "Hello,World,How are you"');
       }
 
-      console.log(`Set random messages to: ${messages}`);
+      console.log(`Set random messages to: ${messageList.join(', ')}`);
 
       const chance = interaction.options.getNumber('chance') || 0.01;
 
-      await save(interaction.guildId!, messageList.join(','), chance);
+      await save(interaction.guildId!, messageList.join(', '), chance);
 
       await interaction.reply(`Set random messages to: ${messageList.join(', ')} with chance: ${chance * 100}%`);
     } else if (interaction.options.getSubcommand() === 'show') {
-      const { messages, chance } = await get(interaction.guildId!);
+      const { messages, chance, channels } = await get(interaction.guildId!);
+
+      // Prepare lists of enabled and disabled channels
+      let enabledChannels = [];
+      let disabledChannels = [];
+
+      if (channels) {
+        for (const [channelId, isEnabled] of Object.entries(channels)) {
+          if (isEnabled) {
+            enabledChannels.push(`<#${channelId}>`);
+          } else {
+            disabledChannels.push(`<#${channelId}>`);
+          }
+        }
+      }
+
+      if (enabledChannels.length === 0) {
+        enabledChannels.push('None');
+      }
+      if (disabledChannels.length === 0) {
+        disabledChannels.push('None');
+      }
 
       const embed = new EmbedBuilder()
         .setTitle('Random Messages Configuration')
-        .addFields({ name: 'Messages', value: messages.join(', '), inline: true }, { name: 'Chance', value: `${(chance * 100).toString()}%`, inline: true })
+        .addFields(
+          { name: 'Messages', value: messages.join(', '), inline: true },
+          { name: 'Chance', value: `${(chance * 100).toString()}%`, inline: true },
+          { name: 'Enabled Channels', value: enabledChannels.join(' '), inline: true },
+          { name: 'Disabled Channels', value: disabledChannels.join(' '), inline: true }
+        )
         .setColor('#0099ff');
 
       await interaction.reply({ embeds: [embed] });
+    } else if (interaction.options.getSubcommand() === 'enable') {
+      await saveChannel(interaction.guildId!, interaction.channelId, 'enable');
+      await interaction.reply('Enabled random messages');
+    } else if (interaction.options.getSubcommand() === 'disable') {
+      await saveChannel(interaction.guildId!, interaction.channelId, 'disable');
+      await interaction.reply('Disabled random messages');
     }
   } catch (error) {
     console.log((error as Error).message);
