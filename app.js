@@ -102,30 +102,12 @@ async function restartBot() {
 				`git clone https://github.com/taroj1205/discord-bot-kirb.git && cd ${botDirPath} && pnpm i && pnpm build && pnpm run start > ${logFilePath} 2>&1`,
 				{ cwd: path.dirname(botDirPath) }
 			);
-
-			botProcess.on("exit", (code, signal) => {
-				if (code !== 0) {
-					console.log(
-						`Bot process exited with code ${code} and signal ${signal}, restarting...`
-					);
-					restartBot();
-				}
-			});
 		} else {
 			// Pull the latest changes if the repository already exists
 			botProcess = exec(
 				`git pull && cd ${botDirPath} && pnpm i && pnpm build && pnpm run start > ${logFilePath} 2>&1`,
 				{ cwd: botDirPath }
 			);
-
-			botProcess.on("exit", (code, signal) => {
-				if (code !== 0) {
-					console.log(
-						`Bot process exited with code ${code} and signal ${signal}, restarting...`
-					);
-					restartBot();
-				}
-			});
 		}
 
 		console.log("Bot restarted successfully.");
