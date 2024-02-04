@@ -5,6 +5,7 @@ import * as dice from "./dice";
 import * as messages from "./config/random-messages"
 import * as leave from "./leave";
 import * as invite from "./invite";
+import * as common from "./common";
 
 export const commands = {
   ping,
@@ -14,4 +15,5 @@ export const commands = {
   config: messages,
   leave,
   invite,
+  common,
 };
