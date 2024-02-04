@@ -13,7 +13,8 @@ function initializeDatabase(): Promise<void> {
     db.run(`CREATE TABLE IF NOT EXISTS random_messages (
       server_id TEXT PRIMARY KEY,
       messages TEXT,
-      chance FLOAT
+      chance FLOAT,
+      channel TEXT
     )`, (err) => {
       if (err) {
         reject(err);
@@ -26,34 +27,85 @@ function initializeDatabase(): Promise<void> {
 
 export async function save(server_id: string, messages: string, chance: number): Promise<string> {
   await initializeDatabase();
+  const messagesArray = JSON.stringify(messages.split(',').map(message => message.trim()));
+  console.log(messagesArray)
   return await new Promise((resolve, reject) => {
-    const stmt = db.prepare("INSERT OR REPLACE INTO random_messages VALUES (?, ?, ?)");
-    stmt.run(server_id, messages, chance, function (this: sqlite3.RunResult, err: Error | null) {
+    const stmt = db.prepare("INSERT OR IGNORE INTO random_messages (server_id, messages, chance) VALUES (?, ?, ?)");
+    stmt.run(server_id, messagesArray, chance, function (this: sqlite3.RunResult, err: Error | null) {
       if (err) {
         console.error(err.message);
         reject(err);
       } else {
-        console.log(`A row has been inserted or replaced with rowid ${this.lastID}`);
-        resolve(`A row has been inserted or replaced with rowid ${this.lastID}`);
+        const updateStmt = db.prepare("UPDATE random_messages SET messages = ?, chance = ? WHERE server_id = ?");
+        updateStmt.run(messages, chance, server_id, function (this: sqlite3.RunResult, updateErr: Error | null) {
+          if (updateErr) {
+            console.error(updateErr.message);
+            reject(updateErr);
+          } else {
+            console.log(`A row has been inserted or updated with rowid ${this.lastID}`);
+            resolve(`A row has been inserted or updated with rowid ${this.lastID}`);
+          }
+        });
+        updateStmt.finalize();
       }
     });
     stmt.finalize();
   });
 }
 
-export async function get(server_id: string): Promise<{ messages: string[], chance: number }> {
+export async function saveChannel(server_id: string, channel_id: string, action: string): Promise<string> {
   await initializeDatabase();
   return await new Promise((resolve, reject) => {
-    db.get("SELECT messages, chance FROM random_messages WHERE server_id = ?", [server_id], function (this: sqlite3.RunResult, err: Error | null, row: { messages: string; chance: number; }) {
+    db.get("SELECT channel FROM random_messages WHERE server_id = ?", server_id, (err, row: { channel?: string }) => {
       if (err) {
         console.error(err.message);
         reject(err);
       } else if (row) {
-        const messages = row.messages.split(',');
-        const chance = row.chance;
-        resolve({ messages, chance });
+        let channels: { [key: string]: boolean | null } = row.channel ? JSON.parse(row.channel) : {};
+        channels[channel_id] = action === 'enable' ? true : action === 'disable' ? false : null;
+
+        const stmt = db.prepare("UPDATE random_messages SET channel = ? WHERE server_id = ?");
+        stmt.run(JSON.stringify(channels), server_id, function (this: sqlite3.RunResult, err: Error | null) {
+          if (err) {
+            console.error(err.message);
+            reject(err);
+          } else {
+            console.log(`A row has been updated with rowid ${this.lastID}`);
+            resolve(`A row has been updated with rowid ${this.lastID}`);
+          }
+        });
+        stmt.finalize();
       } else {
-        resolve({ messages: ["L"], chance: 0.01 });
+        const stmt = db.prepare("INSERT INTO random_messages (server_id, messages, chance, channel) VALUES (?, ?, ?, ?)");
+        stmt.run(server_id, 'L', 0.01, null, function (this: sqlite3.RunResult, err: Error | null) {
+          if (err) {
+            console.error(err.message);
+            reject(err);
+          } else {
+            console.log(`A row has been inserted with rowid ${this.lastID}`);
+            resolve(`A row has been inserted with rowid ${this.lastID}`);
+          }
+        });
+        stmt.finalize();
+      }
+    });
+  });
+}
+
+export async function get(server_id: string): Promise<{ messages: string, chance: number, channels: { [key: string]: boolean | null } | null }> {
+  await initializeDatabase();
+  return await new Promise((resolve, reject) => {
+    db.get("SELECT messages, chance, channel FROM random_messages WHERE server_id = ?", [server_id], function (this: sqlite3.RunResult, err: Error | null, row: { messages: string; chance: number; channel: string | null; }) {
+      if (err) {
+        console.error(err.message);
+        reject(err);
+      } else if (row) {
+        const messages = row.messages;
+        const chance = row.chance;
+        let channels: { [key: string]: boolean | null } = row && row.channel ? JSON.parse(row.channel) : {};
+        resolve({ messages, chance, channels });
+      } else {
+        resolve({ messages: "L", chance: 0.01, channels: null });
       }
     });
   });
