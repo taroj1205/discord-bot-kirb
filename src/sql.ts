@@ -92,7 +92,7 @@ export async function saveChannel(server_id: string, channel_id: string, action:
   });
 }
 
-export async function get(server_id: string): Promise<{ messages: string, chance: number, channels: { [key: string]: boolean | null } | null }> {
+export async function get(server_id: string): Promise<{ messages: string[], chance: number, channels: { [key: string]: boolean | null } | null }> {
   await initializeDatabase();
   return await new Promise((resolve, reject) => {
     db.get("SELECT messages, chance, channel FROM random_messages WHERE server_id = ?", [server_id], function (this: sqlite3.RunResult, err: Error | null, row: { messages: string; chance: number; channel: string | null; }) {
@@ -100,12 +100,12 @@ export async function get(server_id: string): Promise<{ messages: string, chance
         console.error(err.message);
         reject(err);
       } else if (row) {
-        const messages = row.messages;
+        const messages = row.messages.split(',').map(message => message.trim());
         const chance = row.chance;
         let channels: { [key: string]: boolean | null } = row && row.channel ? JSON.parse(row.channel) : {};
         resolve({ messages, chance, channels });
       } else {
-        resolve({ messages: "L", chance: 0.01, channels: null });
+        resolve({ messages: ["L"], chance: 0.01, channels: null });
       }
     });
   });

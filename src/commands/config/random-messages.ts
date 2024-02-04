@@ -90,7 +90,7 @@ export async function execute(interaction: CommandInteraction) {
       const embed = new EmbedBuilder()
         .setTitle('Random Messages Configuration')
         .addFields(
-          { name: 'Messages', value: messages, inline: true },
+          { name: 'Messages', value: messages.join(', '), inline: true },
           { name: 'Chance', value: `${(chance * 100).toString()}%`, inline: true },
           { name: 'Enabled Channels', value: enabledChannels.join(' '), inline: true },
           { name: 'Disabled Channels', value: disabledChannels.join(' '), inline: true }
