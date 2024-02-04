@@ -34,11 +34,10 @@ client.on("messageCreate", async (message) => {
 
   const { messages: words, chance } = await get(message.guild?.id!) || { messages: ["L"], chance: 0.01 };
 
-  // 1% chance of being triggered
   if (Math.random() < chance) {
     // Pick random word from the list
     const word = words[Math.floor(Math.random() * words.length)];
-    await message.reply(word);
+    await message.channel.send(word);
   }
 })
 
