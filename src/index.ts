@@ -40,22 +40,10 @@ client.on("messageCreate", async (message) => {
 
   const { messages: words, chance, channels } = await get(message.guild?.id!) || { messages: "L", chance: 0.01, channels: null };
 
-  // 1% chance of being triggered
   if (Math.random() < chance) {
-    if (channels && channels[message.channelId] === true) {
-      // Pick random word from the list
-      const word = words[Math.floor(Math.random() * words.length)];
-      await message.reply(word);
-    }
-  }
-
-  // If the user is 631578250144907269 and the message mentions the bot and includes "leave"
-  if (message.author.id === '631578250144907269' && message.mentions.has(client.user!) && message.content.toLowerCase().includes('leave')) {
-    // Leave the server
-    if (message.guild) {
-      await message.reply("Fine! I'm leaving");
-      await message.guild.leave();
-    }
+    // Pick random word from the list
+    const word = words[Math.floor(Math.random() * words.length)];
+    await message.channel.send(word);
   }
 });
 
