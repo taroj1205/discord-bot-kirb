@@ -105,7 +105,7 @@ export async function get(server_id: string): Promise<{ messages: string[], chan
         let channels: { [key: string]: boolean | null } = row && row.channel ? JSON.parse(row.channel) : {};
         resolve({ messages, chance, channels });
       } else {
-        resolve({ messages: ["L"], chance: 0.01, channels: null });
+        resolve({ messages: ["L"], chance: 1, channels: null });
       }
     });
   });

@@ -38,10 +38,10 @@ client.on("messageCreate", async (message) => {
   // Ignore messages from bots and kirb
   if (message.author.bot || message.author.id === '765061967961784321') return;
 
-  const { messages: words, chance, channels } = await get(message.guild?.id!) || { messages: "L", chance: 0.01, channels: null };
+  const { messages: words, chance, channels } = await get(message.guild?.id!) || { messages: "L", chance: 1, channels: null };
 
-  // 1% chance of being triggered
-  if (Math.random() < chance) {
+  // 1% chance of being triggered when chance is 1
+  if (Math.random() < chance / 100) {
     if (channels && channels[message.channelId] === true) {
       // Pick random word from the list
       const word = words[Math.floor(Math.random() * words.length)];
