@@ -6,6 +6,7 @@ import * as messages from "./config/random-messages"
 import * as leave from "./leave";
 import * as invite from "./invite";
 import * as common from "./common";
+import * as timestamp from "./timestamp";
 
 export const commands = {
   ping,
@@ -16,4 +17,5 @@ export const commands = {
   leave,
   invite,
   common,
+  timestamp
 };
