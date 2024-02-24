@@ -38,16 +38,22 @@ export const data = new SlashCommandBuilder()
 				{ name: "Relative Time", value: "R" }
 			)
 	);
-  
+
 export async function execute(interaction: CommandInteraction) {
 	if (!interaction.isChatInputCommand()) return;
 	try {
 		const timezone = interaction.options.getInteger("timezone") || 0;
-		const dateInput = interaction.options.getString("date");
-    const timeInput = interaction.options.getString("time");
-    const format = interaction.options.getString("format") || "default";
+		let dateInput = interaction.options.getString("date");
+		const timeInput = interaction.options.getString("time");
+		const format = interaction.options.getString("format") || "default";
 		if (!dateInput || !timeInput)
 			throw new Error("Timezone, date, and time are required");
+
+		let dateParts = dateInput.split("-");
+		if (dateParts.length !== 3) {
+			let currentYear = new Date().getFullYear();
+			dateInput = `${currentYear}-${dateInput}`;
+		}
 
 		const date = new Date(
 			Date.UTC(
