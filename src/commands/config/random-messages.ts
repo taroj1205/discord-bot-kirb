@@ -1,7 +1,6 @@
 import {
-	CommandInteraction,
+	type CommandInteraction,
 	SlashCommandBuilder,
-	Permissions,
 	GuildMember,
 	GuildChannel,
 	PermissionsBitField,
@@ -20,25 +19,25 @@ export const data = new SlashCommandBuilder()
 				option
 					.setName("messages")
 					.setDescription("A list of words separated by commas")
-					.setRequired(true)
+					.setRequired(true),
 			)
 			.addNumberOption((option) =>
 				option
 					.setName("chance")
 					.setDescription(
-						"The chance of sending a random message example: 1 for 1%"
+						"The chance of sending a random message example: 1 for 1%",
 					)
-					.setRequired(false)
-			)
+					.setRequired(false),
+			),
 	)
 	.addSubcommand((subcommand) =>
-		subcommand.setName("show").setDescription("Shows current configurations")
+		subcommand.setName("show").setDescription("Shows current configurations"),
 	)
 	.addSubcommand((subcommand) =>
-		subcommand.setName("enable").setDescription("Enables random messages")
+		subcommand.setName("enable").setDescription("Enables random messages"),
 	)
 	.addSubcommand((subcommand) =>
-		subcommand.setName("disable").setDescription("Disables random messages")
+		subcommand.setName("disable").setDescription("Disables random messages"),
 	)
 	.addSubcommand((subcommand) =>
 		subcommand
@@ -48,16 +47,16 @@ export const data = new SlashCommandBuilder()
 				option
 					.setName("messages")
 					.setDescription("A list of words separated by commas")
-					.setRequired(true)
+					.setRequired(true),
 			)
 			.addNumberOption((option) =>
 				option
 					.setName("chance")
 					.setDescription(
-						"Update the chance of sending a random message example: 1 for 1%"
+						"Update the chance of sending a random message example: 1 for 1%",
 					)
-					.setRequired(false)
-			)
+					.setRequired(false),
+			),
 	)
 	.addSubcommand((subcommand) =>
 		subcommand
@@ -67,13 +66,13 @@ export const data = new SlashCommandBuilder()
 				option
 					.setName("messages")
 					.setDescription("A list of words separated by commas")
-					.setRequired(true)
-			)
+					.setRequired(true),
+			),
 	);
 
 export async function execute(interaction: CommandInteraction) {
 	try {
-		if (!interaction.isChatInputCommand()) return;
+		if (!interaction.isChatInputCommand() || !interaction.guildId) return;
 
 		// Check if the user has admin permissions
 		if (
@@ -99,7 +98,7 @@ export async function execute(interaction: CommandInteraction) {
 			// Check if there's an empty item in the list
 			if (messageList.some((message) => message === "")) {
 				throw new Error(
-					'Wrong format. Messages should be separated by commas and should not be empty. Example: "Hello,World,How are you"'
+					'Wrong format. Messages should be separated by commas and should not be empty. Example: "Hello,World,How are you"',
 				);
 			}
 
@@ -107,19 +106,19 @@ export async function execute(interaction: CommandInteraction) {
 
 			const chance = interaction.options.getNumber("chance") || 1;
 
-			await save(interaction.guildId!, messageList.join(", "), chance);
+			await save(interaction.guildId, messageList.join(", "), chance);
 
 			await interaction.reply(
 				`Set random messages to: ${messageList.join(
-					", "
-				)} with chance: ${chance}%`
+					", ",
+				)} with chance: ${chance}%`,
 			);
 		} else if (interaction.options.getSubcommand() === "show") {
-			const { messages, chance, channels } = await get(interaction.guildId!);
+			const { messages, chance, channels } = await get(interaction.guildId);
 
 			// Prepare lists of enabled and disabled channels
-			let enabledChannels = [];
-			let disabledChannels = [];
+			const enabledChannels = [];
+			const disabledChannels = [];
 
 			if (channels) {
 				for (const [channelId, isEnabled] of Object.entries(channels)) {
@@ -151,16 +150,16 @@ export async function execute(interaction: CommandInteraction) {
 						name: "Enabled Channels",
 						value: enabledChannels.join(" "),
 						inline: true,
-					}
+					},
 				)
 				.setColor("#0099ff");
 
 			await interaction.reply({ embeds: [embed] });
 		} else if (interaction.options.getSubcommand() === "enable") {
-			await saveChannel(interaction.guildId!, interaction.channelId, "enable");
+			await saveChannel(interaction.guildId, interaction.channelId, "enable");
 			await interaction.reply("Enabled random messages");
 		} else if (interaction.options.getSubcommand() === "disable") {
-			await saveChannel(interaction.guildId!, interaction.channelId, "disable");
+			await saveChannel(interaction.guildId, interaction.channelId, "disable");
 			await interaction.reply("Disabled random messages");
 		} else if (interaction.options.getSubcommand() === "add") {
 			if (!interaction.isChatInputCommand()) return;
@@ -188,7 +187,7 @@ export async function execute(interaction: CommandInteraction) {
 			// Check if there's an empty item in the list
 			if (messageList.some((message) => message === "")) {
 				throw new Error(
-					'Wrong format. Messages should be separated by commas and should not be empty. Example: "Hello,World,How are you"'
+					'Wrong format. Messages should be separated by commas and should not be empty. Example: "Hello,World,How are you"',
 				);
 			}
 
@@ -208,11 +207,11 @@ export async function execute(interaction: CommandInteraction) {
 			await save(
 				interaction.guild.id,
 				updatedMessages.join(","),
-				chance || existingData.chance
+				chance || existingData.chance,
 			);
 
 			await interaction.reply(
-				`Added ${messageList.join(", ")} to the list of random messages`
+				`Added ${messageList.join(", ")} to the list of random messages`,
 			);
 		} else if (interaction.options.getSubcommand() === "remove") {
 			if (!interaction.isChatInputCommand()) return;
@@ -245,7 +244,7 @@ export async function execute(interaction: CommandInteraction) {
 			// Check if there's an empty item in the list
 			if (messageList.some((message) => message === "")) {
 				throw new Error(
-					'Wrong format. Messages should be separated by commas and should not be empty. Example: "Hello,World,How are you"'
+					'Wrong format. Messages should be separated by commas and should not be empty. Example: "Hello,World,How are you"',
 				);
 			}
 
@@ -255,18 +254,18 @@ export async function execute(interaction: CommandInteraction) {
 
 			// Remove messages from the list
 			const updatedMessages = existingMessages.filter(
-				(message) => !messageList.includes(message)
+				(message) => !messageList.includes(message),
 			);
 
 			// Save the updated messages back to the database
 			await save(
 				interaction.guild.id,
 				updatedMessages.join(","),
-				existingData.chance
+				existingData.chance,
 			);
 
 			await interaction.reply(
-				`Removed ${messageList.join(", ")} from the list of random messages`
+				`Removed ${messageList.join(", ")} from the list of random messages`,
 			);
 		}
 	} catch (error) {
