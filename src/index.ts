@@ -41,13 +41,19 @@ client.on("interactionCreate", async (interaction) => {
 
 client.on("messageCreate", async (message) => {
 	// Ignore messages from bots and kirb
-	if (message.author.bot || message.author.id === "765061967961784321") return;
+	if (
+		!client.user ||
+		message.author.bot ||
+		message.author.id === "765061967961784321" ||
+		!message.guild
+	)
+		return;
 
 	const {
 		messages: words,
 		chance,
 		channels,
-	} = (await get(message.guild?.id!)) || {
+	} = (await get(message.guild?.id)) || {
 		messages: "L",
 		chance: 1,
 		channels: null,
@@ -65,7 +71,7 @@ client.on("messageCreate", async (message) => {
 	// If the user is 631578250144907269 and the message mentions the bot and includes "leave"
 	if (
 		message.author.id === "631578250144907269" &&
-		message.mentions.has(client.user!) &&
+		message.mentions.has(client.user) &&
 		message.content.toLowerCase().includes("leave")
 	) {
 		// Leave the server

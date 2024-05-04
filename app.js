@@ -1,18 +1,17 @@
 const ngrok = require("@ngrok/ngrok");
-const path = require("path");
-const fs = require("fs");
+const path = require("node:path");
+const fs = require("node:fs");
 const { Octokit } = require("@octokit/rest");
 const sodium = require("sodium-native");
 require("dotenv").config();
-const http = require("http");
-const { exec } = require("child_process");
-
+const http = require("node:http");
+const { exec } = require("node:child_process");
 
 const octokit = new Octokit({ auth: process.env.GITHUB_TOKEN });
 
 const authToken = String(process.env.NGROK_AUTHTOKEN);
 
-(async function () {
+(async () => {
 	await ngrok.authtoken(authToken);
 	const listener = await ngrok.forward({ addr: 8080 });
 
@@ -26,11 +25,11 @@ const authToken = String(process.env.NGROK_AUTHTOKEN);
 	});
 
 	// Convert the public key and the message into Buffer
-	let publicKey = Buffer.from(key, "base64");
-	let message = Buffer.from(listener.url());
+	const publicKey = Buffer.from(key, "base64");
+	const message = Buffer.from(listener.url());
 
 	// Create a buffer with the right size for the encrypted message
-	let encrypted = Buffer.alloc(message.length + sodium.crypto_box_SEALBYTES);
+	const encrypted = Buffer.alloc(message.length + sodium.crypto_box_SEALBYTES);
 
 	// Encrypt the message
 	sodium.crypto_box_seal(encrypted, message, publicKey);
@@ -44,7 +43,7 @@ const authToken = String(process.env.NGROK_AUTHTOKEN);
 		key_id: key_id,
 	});
 
-	restartBot()
+	restartBot();
 
 	const server = http.createServer(async (req, res) => {
 		if (req.url === "/restart" && req.method === "GET") {
@@ -100,13 +99,13 @@ async function restartBot() {
 			// Clone the repository if it doesn't exist
 			botProcess = exec(
 				`git clone https://github.com/taroj1205/discord-bot-kirb.git && cd ${botDirPath} && pnpm i && pnpm build && pnpm run start > ${logFilePath} 2>&1`,
-				{ cwd: path.dirname(botDirPath) }
+				{ cwd: path.dirname(botDirPath) },
 			);
 		} else {
 			// Pull the latest changes if the repository already exists
 			botProcess = exec(
 				`git pull && cd ${botDirPath} && pnpm i && pnpm build && pnpm run start > ${logFilePath} 2>&1`,
-				{ cwd: botDirPath }
+				{ cwd: botDirPath },
 			);
 		}
 

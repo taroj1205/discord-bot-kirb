@@ -95,7 +95,7 @@ export async function saveChannel(
 					console.error(err.message);
 					reject(err);
 				} else if (row) {
-					let channels: { [key: string]: boolean | null } = row.channel
+					const channels: { [key: string]: boolean | null } = row.channel
 						? JSON.parse(row.channel)
 						: {};
 					channels[channel_id] =
@@ -169,8 +169,9 @@ export async function get(server_id: string): Promise<{
 						.split(",")
 						.map((message) => message.trim());
 					const chance = row.chance;
-					let channels: { [key: string]: boolean | null } =
-						row && row.channel ? JSON.parse(row.channel) : {};
+					const channels: { [key: string]: boolean | null } = row?.channel
+						? JSON.parse(row.channel)
+						: {};
 					resolve({ messages, chance, channels });
 				} else {
 					resolve({ messages: ["L"], chance: 1, channels: null });

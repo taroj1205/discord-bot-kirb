@@ -1,5 +1,5 @@
 import { SlashCommandBuilder } from "discord.js";
-import { CommandInteraction } from "discord.js";
+import type { CommandInteraction } from "discord.js";
 
 export const data = new SlashCommandBuilder()
 	.setName("timestamp")
@@ -8,19 +8,19 @@ export const data = new SlashCommandBuilder()
 		option
 			.setName("date")
 			.setDescription("Date in the format YYYY-MM-DD or MM-DD")
-			.setRequired(true)
+			.setRequired(true),
 	)
 	.addStringOption((option) =>
 		option
 			.setName("time")
 			.setDescription("Time in the format HH:MM")
-			.setRequired(true)
+			.setRequired(true),
 	)
 	.addIntegerOption((option) =>
 		option
 			.setName("timezone")
 			.setDescription("Timezone offset from UTC in hours (+13 for NZ time)")
-			.setRequired(false)
+			.setRequired(false),
 	)
 	.addStringOption((option) =>
 		option
@@ -35,8 +35,8 @@ export const data = new SlashCommandBuilder()
 				{ name: "Long Date", value: "D" },
 				{ name: "Short Date/Time", value: "f" },
 				{ name: "Long Date/Time", value: "F" },
-				{ name: "Relative Time", value: "R" }
-			)
+				{ name: "Relative Time", value: "R" },
+			),
 	);
 
 export async function execute(interaction: CommandInteraction) {
@@ -49,26 +49,26 @@ export async function execute(interaction: CommandInteraction) {
 		if (!dateInput || !timeInput)
 			throw new Error("Timezone, date, and time are required");
 
-		let dateParts = dateInput.split("-");
+		const dateParts = dateInput.split("-");
 		if (dateParts.length !== 3) {
-			let currentYear = new Date().getFullYear();
+			const currentYear = new Date().getFullYear();
 			dateInput = `${currentYear}-${dateInput}`;
 		}
 
 		const date = new Date(
 			Date.UTC(
-				parseInt(dateInput.split("-")[0]),
-				parseInt(dateInput.split("-")[1]) - 1,
-				parseInt(dateInput.split("-")[2]),
-				parseInt(timeInput.split(":")[0]) - timezone,
-				parseInt(timeInput.split(":")[1])
-			)
+				Number(dateInput.split("-")[0]),
+				Number(dateInput.split("-")[1]) - 1,
+				Number(dateInput.split("-")[2]),
+				Number(timeInput.split(":")[0]) - timezone,
+				Number(timeInput.split(":")[1]),
+			),
 		);
 
 		const timestamp = Math.floor(date.getTime() / 1000);
 
 		await interaction.reply(
-			format === "default" ? `<t:${timestamp}>` : `<t:${timestamp}:${format}>`
+			format === "default" ? `<t:${timestamp}>` : `<t:${timestamp}:${format}>`,
 		);
 	} catch (error) {
 		console.log((error as Error).message);
